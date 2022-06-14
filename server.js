@@ -1,47 +1,40 @@
-const fs = require('fs');
-const fsPromises = require('fs/promises');
+const express = require('express')
+const app = express();
 const path = require('path');
-const http = require('node:http');
-const getContentType = require('./js/getContentType')
-const getDirName = require('./js/getDirName');
 const logEvent = require('./js/logEvent')
 const EventEmitter = require('node:events');
 class Emitter extends EventEmitter {}
 
-
-
 const PORT = process.env.PORT || 3500;
-const server = http.createServer(async (req, res) => {
-    const url = req.url;
-    let contentType = getContentType(path.extname(url))
-    let fullPath = path.join(__dirname,getDirName(url));
-    let codeType = contentType == 'text/html' ? 'utf8' : '';
+app.get('^/$|^\/index(.html)?$', function(req, res) {
+  res.sendFile(path.join(__dirname,'views','index.html'))
+  logEmitter.emit('log');
+});
 
-    if(!fs.existsSync(fullPath)) {
-        fullPath = path.join(__dirname,'404.html');
-        codeType = 'utf8';
-        contentType = 'text/html';
-    }
-
-    try {
-        const data = await fsPromises.readFile(fullPath,codeType)
-        res.writeHead(200, { 'Content-Type': contentType })
-        res.write(data,codeType);
-        logEmitter.emit('log',url);
-        res.end();
-    } catch (error) {
-        console.error(error);
-    }
-
-  });
-
-
- 
-server.on('error', err =>{
-  console.error(err);
+app.get('/sub/|/sub/index(.html)?$', (req, res) => {
+  res.sendFile(path.join(__dirname,'views/sub','index.html'))
+});
+app.get('/newPage(.html)?$',(req, res) => {
+  res.sendFile(path.join(__dirname,'views','newPage.html'))
+});
+app.get('/oldPage(.html)?$',(req, res) => {
+  res.redirect(301,'/newPage.html')
+});
+//router handler
+app.get('/welcome', (req, res, next) => {
+  console.log('welcome everybody');
+  next();
+}, (req, res) => {
+  res.redirect('/')
+})
+//這個要放最後不然會蓋住其他的
+app.get('/*',(req,res)=>{
+  res.status(404).sendFile(path.join(__dirname,'views','404.html'))
 })
 
-server.listen(PORT)
+
+app.listen(PORT)
+
 
 const logEmitter = new Emitter();
 logEmitter.on('log', (url) => {
