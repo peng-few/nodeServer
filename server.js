@@ -4,6 +4,11 @@ const path = require('path');
 const http = require('node:http');
 const getContentType = require('./js/getContentType')
 const getDirName = require('./js/getDirName');
+const logEvent = require('./js/logEvent')
+const EventEmitter = require('node:events');
+class Emitter extends EventEmitter {}
+
+
 
 const PORT = process.env.PORT || 3500;
 const server = http.createServer(async (req, res) => {
@@ -22,17 +27,23 @@ const server = http.createServer(async (req, res) => {
         const data = await fsPromises.readFile(fullPath,codeType)
         res.writeHead(200, { 'Content-Type': contentType })
         res.write(data,codeType);
+        logEmitter.emit('log',url);
         res.end();
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 
   });
 
 
  
-  server.on('error', err =>{
-    console.error(err);
-  })
+server.on('error', err =>{
+  console.error(err);
+})
 
-  server.listen(PORT)
+server.listen(PORT)
+
+const logEmitter = new Emitter();
+logEmitter.on('log', (url) => {
+ logEvent(url)
+});
