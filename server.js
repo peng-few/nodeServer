@@ -35,7 +35,10 @@ app.get('/newPage(.html)?$',(req, res) => {
     res.sendFile(path.join(__dirname,'views','newPage.html'))
 });
 app.get('/oldPage(.html)?$',(req, res) => {
-    res.redirect(301,'/newPage.html')
+  res.redirect(301,'/newPage.html')
+});
+app.get('/500(.html)?$',(req, res) => {
+  res.status(500).sendFile(path.join(__dirname,'views','500.html'))
 });
 //router handler
 app.get('/welcome', (req, res, next) => {
@@ -45,7 +48,7 @@ app.get('/welcome', (req, res, next) => {
     res.redirect('/')
 })
 //這個要放最後不然會蓋住其他的
-app.get('/*',(req,res)=>{
+app.all('*',(req,res)=>{
     res.format({
         'application/json': () => {
             res.status(404).send(["404 not found"])
