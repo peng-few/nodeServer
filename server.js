@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const cors = require('cors');
 const subRouter = require('./router/sub');
+const rootRouter = require('./router/root');
 const {errorHandler,accessHandler} = require('./middleware/logHandler')
 const PORT = process.env.PORT || 3500;
 
@@ -22,31 +23,17 @@ app.use(accessHandler);
 app.use(cors(corsOptions)) //cors放在最前面
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static('public'))
+
 app.use('/sub',subRouter);
-
-app.get('^/$|^\/index(.html)?$', function(req, res) {
-    logEmitter.emit('log');
-    res.sendFile(path.join(__dirname,'views','index.html'))
-});
+app.use('/',rootRouter)
 
 
-app.get('/newPage(.html)?$',(req, res) => {
-    res.sendFile(path.join(__dirname,'views','newPage.html'))
-});
-app.get('/oldPage(.html)?$',(req, res) => {
-  res.redirect(301,'/newPage.html')
-});
-app.get('/500(.html)?$',(req, res) => {
-  res.status(500).sendFile(path.join(__dirname,'views','500.html'))
-});
-//router handler
-app.get('/welcome', (req, res, next) => {
-    console.log('welcome everybody');
-    next();
-}, (req, res) => {
-    res.redirect('/')
-})
+app.use(errorHandler);
+
+app.all('/500(.html)?$',(req, res) => {
+    res.status(500).sendFile(path.join(__dirname,'..','views','500.html'))
+  });
+  
 //這個要放最後不然會蓋住其他的
 app.all('*',(req,res)=>{
     res.format({
@@ -59,6 +46,5 @@ app.all('*',(req,res)=>{
     })
 })
 
-app.use(errorHandler);
 
 app.listen(PORT)
