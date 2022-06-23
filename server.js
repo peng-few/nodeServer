@@ -3,27 +3,33 @@ const app = express();
 const path = require('path');
 const cors = require('cors');
 const corsOptions = require("./config/corsOptions");
-const subRouter = require('./router/sub');
-const rootRouter = require('./router/root');
-const employeeApi = require('./router/api/employee');
 const { errorHandler,accessLog } = require('./middleware/logHandler')
+const {authVerify} = require("./middleware/verifyJWT")
 const PORT = process.env.PORT || 3500;
+
 
 app.use(accessLog);
 app.use(cors(corsOptions))
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser())
 //serve static file
-app.use("/sub", express.static('public'))
 app.use("/", express.static('public'))
+app.use("/sub", express.static('public'))
 
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: false
-}));
+app.use(express.urlencoded({extended: false}));
 
-app.use('/sub', subRouter);
-app.use('/api/employee', employeeApi)
-app.use('/', rootRouter)
+app.use('/', require('./routes/root'))
+app.use('/api/auth', require('./routes/api/auth'))
+app.use('/api/register', require('./routes/api/register'))
+app.use('/api/refreshToken', require('./routes/api/refreshToken'))
+app.use('/api/logout', require('./routes/api/logout'))
+app.use(authVerify);
+
+app.use('/sub', require('./routes/sub'));
+app.use('/api/employee', require('./routes/api/employee'))
+
 
 
 app.use(errorHandler);

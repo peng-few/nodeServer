@@ -31,7 +31,7 @@ const createNewEmployee = (req, res) => {
     };
 
     if (!newEmployee.name || !newEmployee.position) {
-        res.status(400).write("請填寫完整的名稱與職位");
+        res.status(400).json(["請填寫完整的名稱與職位"]);
     }
 
     data.setEmployees([...data.employees, newEmployee]);
@@ -45,14 +45,14 @@ const updateEmployee = (req, res) => {
         position: req.body.position,
     };
     if (!newEmployee.id || !newEmployee.name || !newEmployee.position) {
-        res.status(400).write("請填寫完整的名稱與職位");
+        return res.status(400).json(["請填寫完整的名稱與職位"]);
     }
 
     const employee = data.employees.find(
         (employee) => employee.id === parseInt(newEmployee.id)
     );
     if (!employee) {
-        res.status(400).write("查無該職員");
+        return res.status(400).json(["查無該職員"]);
     }
     employee.name = newEmployee.name;
     employee.position = newEmployee.position;
@@ -65,7 +65,7 @@ const updateEmployee = (req, res) => {
 const deleteEmployee = (req, res) => {
     const id = req.body.id;
     if (!id) {
-        res.status(400).write("請填入id");
+        return res.status(400).write("請填入id");
     }
     const remainEmployees = data.employees.filter(
         (employee) => employee.id !== parseInt(id)

@@ -10,7 +10,7 @@ const logEvent = async (msg,fileName) => {
             await fsPromise.mkdir(path.join(__dirname,'..','logs'))
         }
         // const date = format(new Date(), 'yyyy-MM-dd'); 
-        const time = format(new Date(), 'yyyy-MM-dd mm:ss'); 
+        const time = format(new Date(), 'yyyy-MM-dd hh:mm:ss'); 
         const id = uuid();
         const logMsg = `${msg}\t ${time}\t ${id}\n`;
         await fsPromise.appendFile(path.join(__dirname,'..','logs',`${fileName}.txt`),logMsg)
