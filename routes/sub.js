@@ -1,13 +1,14 @@
-const express = require('express')
+const express = require('express');
+
 const router = express.Router();
 const path = require('path');
 
 router.get('/|/index(.html)?$', (req, res) => {
-    res.sendFile(path.join(__dirname,'..','views/sub','index.html'))
+  res.sendFile(path.join(__dirname, '..', 'views/sub', 'index.html'));
 });
 
 router.get('/test(.html)?$', (req, res) => {
-    res.sendFile(path.join(__dirname,'..','views/sub','test.html'))
+  res.sendFile(path.join(__dirname, '..', 'views/sub', 'test.html'));
 });
 
 module.exports = router;
