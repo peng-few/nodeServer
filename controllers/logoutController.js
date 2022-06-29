@@ -37,7 +37,8 @@ const logout = async (req, res) => {
     if (decoded.userName !== findUser.account) throw new Error();
 
     const logoutUser = { ...findUser, refreshToken: null };
-    const otherUsers = data.users.filter((user) => user.account === decoded.username);
+    const otherUsers = data.users.filter((user) => user.account !== decoded.userName);
+    console.log(otherUsers)
     data.setUsers([...otherUsers, logoutUser]);
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
     res.status(201).json(['登出成功!']);

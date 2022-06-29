@@ -24,7 +24,7 @@ const getAccessToken = (req, res) => {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     if (decoded.userName !== findUser.account) throw new Error();
     const accessToken = jwt.sign(
-      { userName: decoded.userName },
+      { userName: decoded.userName,role: decoded.role },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '30s' },
     );

@@ -37,13 +37,13 @@ const login = async (req, res) => {
   const correctPwd = await bcrypt.compare(password, user.password);
   if (correctPwd) {
     const accessToken = jwt.sign(
-      { userName: account },
+      { userName: account, role: user.role},
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '30s' },
     );
 
     const refreshToken = jwt.sign(
-      { userName: account },
+      { userName: account, role: user.role},
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: '1d' },
     );
