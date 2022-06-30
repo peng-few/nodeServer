@@ -1,5 +1,5 @@
+require('dotenv').config();
 const express = require('express');
-
 const app = express();
 const path = require('path');
 const cors = require('cors');
@@ -7,6 +7,9 @@ const cookieParser = require('cookie-parser');
 const corsOptions = require('./config/corsOptions');
 const { errorHandler, accessLog } = require('./middleware/logHandler');
 const { authVerify } = require('./middleware/verifyJWT');
+const mongoose = require('mongoose');
+const connectDB = require('./config/dbConn');
+connectDB();
 
 const PORT = process.env.PORT || 3500;
 
@@ -49,4 +52,8 @@ app.all('*', (req, res) => {
   });
 });
 
-app.listen(PORT);
+mongoose.connection.once('open', () => {
+  console.log("!connect")
+  app.listen(PORT);
+  mongoose.connection.close()
+});
