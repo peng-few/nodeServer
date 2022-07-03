@@ -55,5 +55,4 @@ app.all('*', (req, res) => {
 mongoose.connection.once('open', () => {
   console.log("!connect")
   app.listen(PORT);
-  mongoose.connection.close()
 });

@@ -1,8 +1,13 @@
 const verifyRole = (allowRoles) => {
     return (req,res,next) => {
-       const userRole = req.role;
-       if(allowRoles.includes(userRole)) next();
-       res.sendStatus(403)
+       const userRole = Object.keys(req.role)[0];
+       if(allowRoles.includes(userRole)) {
+        next();
+       } else {
+        console.log("role 沒有通過")
+        res.sendStatus(403)
+       }
+       
     }
 }
 

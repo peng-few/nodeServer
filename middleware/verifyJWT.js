@@ -6,8 +6,11 @@ const authVerify = (req,res,next) => {
        return res.sendStatus(403);
     } else {
         jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET,(error,encoded)=>{
-            if(error)  return res.sendStatus(403);
-            req.userName = encoded.userName;
+            if(error) {
+                console.log("沒通過jwt")
+                return res.sendStatus(403);
+            } 
+            req.userName = encoded.username;
             req.role = encoded.role;
             next();
         })

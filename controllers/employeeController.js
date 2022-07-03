@@ -1,89 +1,66 @@
-const fs = require('fs');
-const path = require('path');
-const DB = require('../model/employee.json');
+const Employee = require('../model/Employee');
 
-const data = {
-  employees: DB,
-  setEmployees(employees) {
-    fs.writeFile(
-      path.join(__dirname, '..', 'model', 'employee.json'),
-      JSON.stringify(employees),
-      (err) => {
-        if (err) {
-          console.log(err);
-        }
-      },
-    );
-    this.employees = employees;
-  },
+const getAllEmployees = async (req, res) => {
+  res.json(await Employee.find({}).exec());
 };
 
-const getAllEmployees = (req, res) => {
-  res.json(data.employees);
-};
-
-const createNewEmployee = (req, res) => {
+const createNewEmployee = async (req, res) => {
   const newEmployee = {
-    id: data.employees?.length
-      ? data.employees[data.employees.length - 1].id + 1
-      : 1,
     name: req.body.name,
     position: req.body.position,
   };
 
   if (!newEmployee.name || !newEmployee.position) {
     res.status(400).json(['請填寫完整的名稱與職位']);
+    return;
   }
 
-  data.setEmployees([...data.employees, newEmployee]);
-  res.status(201).json(data.employees);
+  try {
+    const resultEmployee = await Employee.create(newEmployee)
+    res.status(201).json(resultEmployee);
+  } catch (error) {
+    res.status(400).json([error]);
+  }
 };
 
 const updateEmployee = (req, res) => {
   const newEmployee = {
-    id: req.body.id,
     name: req.body.name,
     position: req.body.position,
   };
-  if (!newEmployee.id || !newEmployee.name || !newEmployee.position) {
+  if (!newEmployee.name || !newEmployee.position) {
     res.status(400).json(['請填寫完整的名稱與職位']);
     return;
   }
 
-  const findEmployee = data.employees.find(
-    (employee) => employee.id === parseInt(newEmployee.id, 10),
-  );
-  if (!findEmployee) {
-    res.status(400).json(['查無該職員']);
-    return;
-  }
-  findEmployee.name = newEmployee.name;
-  findEmployee.position = newEmployee.position;
+  const {id} = req.body;
+  Employee.findByIdAndUpdate(id,newEmployee,{returnDocument: 'after'},(error,doc) => {
+    if(error) return res.status(400).json(error);
+    if(!doc) return res.status(400).json(['查無此人員']);
+    res.status(201).json(doc);
+  })
 
-  data.setEmployees(data.employees);
-
-  res.status(201).json(data.employees);
 };
 
 const deleteEmployee = (req, res) => {
   const { id } = req.body;
   if (!id) {
-    res.status(400).write('請填入id');
+    res.status(400).json(['請輸入Id']);
     return;
   }
-  const remainEmployees = data.employees.filter(
-    (employee) => employee.id !== parseInt(id, 10),
-  );
-  data.setEmployees(remainEmployees);
-  res.status(201).json(data.employees);
+
+  Employee.findByIdAndDelete(id,(error,doc) => {
+    if(error) res.status(400).json(error);
+    if(!doc) res.status(400).json(['查無此人員']);
+    res.status(201).json(['刪除成功']);
+  })
+
 };
 
-const getEmployee = (req, res) => {
+const getEmployee = async (req, res) => {
   const { id } = req.params;
-  const findEmployee = data.employees.find(
-    (employee) => employee.id === parseInt(id, 10),
-  );
-  res.json(findEmployee);
+  const foundEmployee = await Employee.findById(id).exec();
+  res.json(foundEmployee);
 };
 
 module.exports = {

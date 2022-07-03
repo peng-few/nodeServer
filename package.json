@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server",
     "dev": "nodemon server",
-    "eslintInit": "eslint --init"
+    "eslintInit": "eslint --init",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",
